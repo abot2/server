@@ -49,12 +49,26 @@ function oplogStart() {
   }
   oplogSignalSources.stop(() => {
     oplogSignalSources.tail(() => {
-      console.log("Oplog started");
+      //console.log("Oplog started");
     });
   });
   if (firstStart) {
-    oplogSignalSources.on('op', (doc) => {
-      console.log(doc);
+    oplogSignalSources.on('update', (obj) => {
+      let doc = obj.o;
+      let _id = doc._id;
+      let ss = signalSources[_id];
+
+      if (doc.port != ss.port) {
+        const oldAddress = ss.socket.address();
+        ss.port = doc.port;
+        ss.socket.close(() => {
+          console.log(`Unbind from ${oldAddress.address}:${oldAddress.port}`);
+          listenFor(_id);
+        });
+      }
+
+      ss.ip = doc.ip;
+      ss.pwdhash = doc.pwdhash;
     });
   }
 }
@@ -64,32 +78,36 @@ function oplogStop() {
     return;
   }
   oplogSignalSources.stop(() => {
-    console.log("Oplog stopped");
+    //console.log("Oplog stopped");
+  });
+}
+
+function listenFor(_id) {
+  const ss = signalSources[_id];
+  const socket = dgram.createSocket('udp4');
+
+  ss.socket = socket;
+
+  socket.bind(ss.port, () => {
+    const address = socket.address();
+  
+    console.log(`Server listening ${address.address}:${address.port}`);
+
+    socket.on('message', (msg, rinfo) => {
+      console.log(`Server got to ${address.port}: ${msg} from ${rinfo.address}:${rinfo.port}`);
+    });
   });
 }
 
 function beginSignalsListening() {
   assert.notEqual(Object.keys(signalSources).length, 0, "Signal source list is empty");
 
-  console.log(signalSources);
-
   oplogStart();
 
   for (let _id in signalSources) {
-    const server = dgram.createSocket('udp4');
-
-    //signalSources[_id].socket = server;
-
-    server.bind(signalSources[_id].port, () => {
-      const address = server.address();
-      
-      console.log(`Server listening ${address.address}:${address.port}`);
-
-      server.on('message', (msg, rinfo) => {
-        console.log(`Server got to ${address.port}: ${msg} from ${rinfo.address}:${rinfo.port}`);
-      });
-    });
+    listenFor(_id);
   }
 }
 
+console.log("Starting server...");
 main();
