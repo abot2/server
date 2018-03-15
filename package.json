@@ -1,0 +1,15 @@
+{
+  "name": "autobot",
+  "version": "2.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": ""
+  },
+  "author": "Vadim (varasev@gmail.com)",
+  "license": "",
+  "description": "",
+  "dependencies": {
+    "mongo-oplog": "^2.1.0",
+    "mongodb": "^3.0.4"
+  }
+}
