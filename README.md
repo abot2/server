@@ -10,15 +10,15 @@
 
 1. Установить MongoDB последней версии.
 
-1. С помощью MongoDB Compass Community создать БД autobot и создать в этой БД коллекцию signal_source с документами необходимой структуры (описано [ниже](#signal_source_struct)).
+1. С помощью MongoDB Compass Community создать БД `autobot` и создать в этой БД коллекцию `signal_source` с документами необходимой структуры (описано [ниже](#signal_source_struct)).
 
-1. Прописать полный путь к mongod в файле rundb.bat.
+1. Прописать полный путь к `mongod` в файле `rundb.bat`.
 
 1. Выполнить `npm i`.
 
 1. Запустить `rundb.bat` (стартует Mongo).
 
-1. Запустить mongo shell и выполнить команду `rs.initiate()`.
+1. Запустить `mongo` shell и выполнить команду `rs.initiate()`.
 
 1. Запустить `run.bat` (стартует сервер).
 
